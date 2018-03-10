@@ -5,8 +5,8 @@ const rl = require('readline');
 class Terminal {
   /**
    * TTY Controller
-   * @param input {Socket}
-   * @param output {Socket}
+   * @param [input] {Socket}
+   * @param [output] {Socket}
    */
   constructor(input, output) {
     this.rlInterface = new rl.createInterface({
