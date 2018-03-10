@@ -69,11 +69,11 @@ Promise.all([anyparse.parse('argv'), anyparse.parse('env')])
       )
       .then(answer => hans.terminal.isAnswerYes(answer) ?
         hans.ask("Shall I store the backup at any specific directory? Tell me it's name or leave empty to use './backup'") : // eslint-disable-line max-len
-        hans.cleanFileMetaData()
+        Promise.map(files, file => hans.cleanFileMetaData(file))
           .then(() => hans.exit())
       )
       .then(answer => Promise.map(files, file => hans.backup(file, { destination: answer })))
-      .then(() => hans.cleanFileMetaData());
+      .then(() => Promise.map(files, file => hans.cleanFileMetaData(file)));
   })
   .catch((error) => {
     logger.error(error.stack);
