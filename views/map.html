@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        #map {
+            height: 100%;
+            height: 100vh;
+            width: 100%;
+        }
+    </style>
+</head>
+<div id="map"></div>
+<span id="latLng" data-latlng="{latLngs}"></span>
+<script>
+  function initMap() {
+    var latLngs = JSON.parse(atob(document.getElementById('latLng').dataset.latlng));
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 4,
+      center: JSON.parse(atob(latLngs[0])),
+    });
+    for (var i = 0; i < latLngs.length; i += 1) {
+      setMarker(map, JSON.parse(atob(latLngs[i])));
+    }
+  }
+  function setMarker(map, latLng) {
+    new google.maps.Marker({
+      map,
+      position: latLng,
+    });
+  }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUfnRfrtIehBYVeGu43QAoXsPj808hYbw&callback=initMap"
+        type="text/javascript">
+</script>
+</body>
+</html>
