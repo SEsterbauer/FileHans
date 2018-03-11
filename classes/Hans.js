@@ -80,7 +80,7 @@ module.exports = {
     return exiftoolCall(file, { clean: true });
   },
   backup: (file, options = {}) => {
-    return fs.copy(file.name, path.join(options.destination || './backup', file.name));
+    return fs.copy(file.name, path.join(fs.pwd(), path.join(options.destination || './backup', file.name)));
   },
   say: (stuff) => {
     console.log(stuff);
