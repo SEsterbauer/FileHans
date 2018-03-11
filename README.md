@@ -1,5 +1,6 @@
 # FileHans
-inspects directories of files, displays meta-data like EXIF data, ships with features like a map to display the location of a picture capture and provides a tool to remove all meta-data from a whole host of files.
+
+is your terminal buddy to inspect directories of files, display meta-data like EXIF data, display the location of a file creation (e.g. a picture capture) in a map and to remove all meta-data from a whole host of files.
 
 #### Setup:
 
@@ -13,10 +14,13 @@ inspects directories of files, displays meta-data like EXIF data, ships with fea
   ```bash
   npm install
   ```
-  
+
+#### Visit FileHans in his office:
+  `node app.js`
+
 #### Argv variables:
 
-`--file | -f` - The FS path to operate on. Can be a file or directory
+`--file | -f` - The FS path to operate on. Can be a file or directory (has priority over the FILE Environment Variable)
 
 #### Environment variables:
 
