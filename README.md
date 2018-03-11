@@ -1,6 +1,6 @@
 # FileHans
 
-is your terminal buddy to inspect directories of files, display meta-data like EXIF data, display the location of a file creation (e.g. a picture capture) in a map and to remove all meta-data from a whole host of files.
+is your terminal buddy to inspect directories of files, display meta-data like EXIF data, display the location of a file creation (e.g. a picture capture) in a map and to remove EXIF data from a whole host of files.
 
 #### Setup:
 
