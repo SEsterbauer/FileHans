@@ -3,11 +3,13 @@
 require('dotenv').config();
 const pjson = require('./package.json');
 const logger = require('./core/Logger')(module);
+const helpers = require('./core/Helpers');
 const hans = require('./classes/Hans');
 const path = require('path');
 const anyparse = require('anyparse');
 const fs = require('fsprom');
 const Promise = require('bluebird');
+const opn = require('opn');
 
 logger.info(`FileHans v${pjson.version}`);
 
@@ -60,7 +62,32 @@ Promise.all([anyparse.parse('argv'), anyparse.parse('env')])
       .then(bulkInfo => hans.ask(`Oh, you say you need it now? Let me look.. Ah! I found heaps of information about ${settings.FILE}! Hit Enter to collapse it`) // eslint-disable-line max-len
         .then(() => {
           hans.say(bulkInfo);
-          return hans.ask('Would you like me to clean all the meta-data?');
+          const positionAttributedItems = files.filter(item => item.metaInfo.position);
+          return Promise.resolve()
+            .then(() => {
+              if (positionAttributedItems.length) {
+                return hans.ask('I found some files that contained the GPS position at creation time. Do you want to view the locations on a map?') // eslint-disable-line max-len
+                  .then(answer => hans.terminal.isAnswerYes(answer) ?
+                    // generate map html & open it in default browser
+                    fs.read('./views/map.html', 'utf8')
+                      .then(html => anyparse.parse(html, {
+                        type: 'template',
+                        variables: {
+                          latLngs: Buffer.from(JSON.stringify(positionAttributedItems.reduce((result, item) => {
+                            return result.concat(Buffer.from(JSON.stringify(
+                              helpers.convertDegreesToLatLng(item.metaInfo.position)
+                            )).toString('base64'));
+                          }, []))).toString('base64'),
+                        },
+                      }))
+                      .then(html => fs.write('./storage/views/map.html', html))
+                      .then(() => opn('./storage/views/map.html')) :
+                    null
+                  );
+              }
+              return null;
+            })
+            .then(() => hans.ask('Would you like me to clean all the meta-data?'));
         })
       )
       .then(answer => hans.terminal.isAnswerYes(answer) ?
@@ -69,11 +96,12 @@ Promise.all([anyparse.parse('argv'), anyparse.parse('env')])
       )
       .then(answer => hans.terminal.isAnswerYes(answer) ?
         hans.ask("Shall I store the backup at any specific directory? Tell me it's name or leave empty to use './backup'") : // eslint-disable-line max-len
-        hans.cleanFileMetaData()
+        Promise.map(files, file => hans.cleanFileMetaData(file))
           .then(() => hans.exit())
       )
       .then(answer => Promise.map(files, file => hans.backup(file, { destination: answer })))
-      .then(() => hans.cleanFileMetaData());
+      .then(() => Promise.map(files, file => hans.cleanFileMetaData(file)))
+      .then(() => hans.exit());
   })
   .catch((error) => {
     logger.error(error.stack);
