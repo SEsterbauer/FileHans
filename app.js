@@ -30,15 +30,8 @@ Promise.all([anyparse.parse('argv'), anyparse.parse('env')])
     return fs.stat(settings.FILE);
   })
   // get name and buffer of file(s)
-  .then((objectStats) => {
-    if (!objectStats.isDirectory()) {
-      return fs.read(settings.FILE)
-        .then(contentBuffer => ({
-          name: settings.FILE,
-          buffer: contentBuffer,
-        }));
-    }
-    return fs.dir(settings.FILE)
+  .then(objectStats => objectStats.isDirectory() ?
+    fs.dir(settings.FILE)
       .then(directoryItems => Promise.map(directoryItems, (directoryItem) => {
         const fileName = path.join(settings.FILE, directoryItem);
         return fs.read(fileName)
@@ -46,8 +39,13 @@ Promise.all([anyparse.parse('argv'), anyparse.parse('env')])
             name: fileName,
             buffer: contentBuffer,
           }));
-      }));
-  })
+      })) :
+    fs.read(settings.FILE)
+      .then(contentBuffer => ({
+        name: settings.FILE,
+        buffer: contentBuffer,
+      }))
+  )
   .then((files) => {
     if (!Array.isArray(files)) {
       files = [files]; // eslint-disable-line no-param-reassign
